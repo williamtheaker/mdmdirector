@@ -188,8 +188,15 @@ func ProcessDeviceProfiles(device types.Device, profiles []types.DeviceProfile, 
 	var metadata types.MetadataItem
 	var devices []types.Device
 	var profileMetadataList []types.ProfileMetadata
-
+	var profileList types.ProfileList
+	var profileLists []types.ProfileList
+	err := db.DB.Model(&profileList).Where("device_ud_id = ?", device.UDID).Scan(&profileLists).Error
+	if err != nil {
+		log.Error("Couldn't scan to Device model from SingleDeviceHandler", err)
+	}
+	device.ProfileList = profileLists
 	metadata.Device = device
+
 	for i := range profiles {
 		var incomingProfiles []types.DeviceProfile
 		var profileMetadata types.ProfileMetadata
@@ -219,6 +226,7 @@ func ProcessDeviceProfiles(device types.Device, profiles []types.DeviceProfile, 
 			}
 
 			if profilePresent {
+				status = "removed"
 				err = db.DB.Model(&profiles).Where("payload_identifier = ?", profile.PayloadIdentifier).Update("installed = ?", false).Update("installed", false).Error
 				if err != nil {
 					return metadata, errors.Wrap(err, "Could not set profile to installed = false.")
@@ -829,4 +837,15 @@ func InstallAllProfiles(device types.Device) ([]types.Command, error) {
 	RequestProfileList(device)
 
 	return pushedCommands, nil
+}
+
+func ResetDeviceProfiles(device types.Device) error {
+	var profiles []types.DeviceProfile
+	log.Infof("Resetting device profiles for %v", device.UDID)
+	err := db.DB.Unscoped().Model(&profiles).Where("device_ud_id = ?", device.UDID).Delete(&types.DeviceProfile{}).Error
+	if err != nil {
+		return errors.Wrap(err, "ResetDeviceProfiles")
+	}
+
+	return nil
 }

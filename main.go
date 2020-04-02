@@ -60,12 +60,16 @@ var DBSSLMode string
 // LogLevel = log level
 var LogLevel string
 
+// ResetDeviceAtEnrollment
+var ResetDeviceProfilesAtEnrollment bool
+
 func main() {
 	var port string
 	var debugMode bool
 	logrus.SetLevel(logrus.DebugLevel)
 	flag.BoolVar(&debugMode, "debug", env.Bool("DEBUG", false), "Enable debug mode")
 	flag.BoolVar(&PushNewBuild, "push-new-build", env.Bool("PUSH_NEW_BUILD", true), "Re-push profiles if the device's build number changes.")
+	flag.BoolVar(&ResetDeviceProfilesAtEnrollment, "reset-device-profiles", env.Bool("RESET_DEVICE_PROFILES", false), "Reset device profiles when the device enrolls.")
 	flag.StringVar(&port, "port", env.String("DIRECTOR_PORT", "8000"), "Port number to run mdmdirector on.")
 	flag.StringVar(&MicroMDMURL, "micromdmurl", env.String("MICRO_URL", ""), "MicroMDM Server URL")
 	flag.StringVar(&MicroMDMAPIKey, "micromdmapikey", env.String("MICRO_API_KEY", ""), "MicroMDM Server API Key")

@@ -37,6 +37,10 @@ func PushOnNewBuild() bool {
 	return flag.Lookup("push-new-build").Value.(flag.Getter).Get().(bool)
 }
 
+func ResetDeviceProfilesAtEnrollment() bool {
+	return flag.Lookup("reset-device-profiles").Value.(flag.Getter).Get().(bool)
+}
+
 func GetBasicAuthUser() string {
 	return "mdmdirector"
 }

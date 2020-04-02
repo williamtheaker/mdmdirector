@@ -3,6 +3,8 @@ package director
 import (
 	"time"
 
+	"github.com/mdmdirector/mdmdirector/utils"
+
 	"github.com/mdmdirector/mdmdirector/db"
 	"github.com/mdmdirector/mdmdirector/log"
 	"github.com/mdmdirector/mdmdirector/types"
@@ -19,11 +21,15 @@ func RunInitialTasks(udid string) error {
 	if err != nil {
 		return errors.Wrap(err, "RunInitialTasks")
 	}
-	// if device.InitialTasksRun == true {
-	// 	log.Infof("Initial tasks already run for %v", device.UDID)
-	// 	return nil
-	// }
+
 	log.Info("Running initial tasks")
+
+	if utils.ResetDeviceProfilesAtEnrollment() {
+		err = ResetDeviceProfiles(device)
+		if err != nil {
+			return errors.Wrap(err, "RunInitialTasks")
+		}
+	}
 	err = ClearCommands(&device)
 	if err != nil {
 		return err
