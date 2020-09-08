@@ -39,6 +39,7 @@ var (
 func Metrics() {
 	totalDevices()
 	profiles()
+	queuedPushes()
 	prometheus.MustRegister(TotalPushes)
 	prometheus.MustRegister(ProfilesPushed)
 	prometheus.MustRegister(InstallApplicationsPushed)
@@ -55,14 +56,36 @@ func totalDevices() {
 	})
 	// register totalDevices
 	prometheus.MustRegister(totalDevices)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&devices).Count(&count).Error
 			if err != nil {
 				log.Error(err)
 			}
 			totalDevices.Set(count)
+		}
+	}()
+}
+
+func queuedPushes() {
+	var scheduledPushes []types.ScheduledPush
+	var count float64
+	queuedPushes := prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: "micromdm",
+		Subsystem: "apns_pushes",
+		Name:      "queued",
+		Help:      "Number of queued APNS Pushes.",
+	})
+
+	prometheus.MustRegister(queuedPushes)
+	go func() {
+		for range time.Tick(time.Second * 30) {
+			err := db.DB.Find(&scheduledPushes).Count(&count).Error
+			if err != nil {
+				log.Error(err)
+			}
+			queuedPushes.Set(count)
 		}
 	}()
 }
@@ -78,9 +101,9 @@ func profiles() {
 	})
 	// register totalSharedProfiles
 	prometheus.MustRegister(totalSharedProfiles)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&sharedprofiles).Count(&count).Error
 			if err != nil {
 				log.Error(err)
@@ -99,9 +122,9 @@ func profiles() {
 	})
 	// register totalInstalledSharedProfiles
 	prometheus.MustRegister(totalInstalledSharedProfiles)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&installedsharedprofiles).Where("installed = ?", true).Count(&installedprofilescount).Error
 			if err != nil {
 				log.Error(err)
@@ -120,9 +143,9 @@ func profiles() {
 	})
 	// register totalUninstalledSharedProfiles
 	prometheus.MustRegister(totalUninstalledSharedProfiles)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&uninstalledsharedprofiles).Where("installed = ?", false).Count(&uninstalledprofilescount).Error
 			if err != nil {
 				log.Error(err)
@@ -141,9 +164,9 @@ func profiles() {
 	})
 	// register totalDeviceProfiles
 	prometheus.MustRegister(totalDeviceProfiles)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&deviceprofiles).Count(&deviceprofilescount).Error
 			if err != nil {
 				log.Error(err)
@@ -162,9 +185,9 @@ func profiles() {
 	})
 	// register totalInstalledDeviceProfiles
 	prometheus.MustRegister(totalInstalledDeviceProfiles)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&installeddeviceprofiles).Where("installed = ?", true).Count(&installeddeviceprofilescount).Error
 			if err != nil {
 				log.Error(err)
@@ -183,9 +206,9 @@ func profiles() {
 	})
 	// register totalUninstalledDeviceProfiles
 	prometheus.MustRegister(totalUninstalledDeviceProfiles)
-	// loop over the ticker and update the total devices every 10 seconds
+	// loop over the ticker and update the total devices every 30 seconds
 	go func() {
-		for range time.Tick(time.Second * 10) {
+		for range time.Tick(time.Second * 30) {
 			err := db.DB.Find(&uninstalleddeviceprofiles).Where("installed = ?", false).Count(&uninstalleddeviceprofilescount).Error
 			if err != nil {
 				log.Error(err)

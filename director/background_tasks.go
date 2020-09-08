@@ -231,7 +231,7 @@ func pushConcurrent(client *http.Client) error {
 		return errors.Wrap(err, "pushConcurrent::setPendingtoInProgress")
 	}
 
-	// Mark the devices we are woring on as "in_pogress" and then perform the push
+	// Mark the devices we are working on as "in_pogress" and then perform the push
 	for _, push := range scheduledPushes {
 		endpoint, err := url.Parse(utils.ServerURL())
 		if err != nil {
@@ -410,10 +410,10 @@ func processScheduledCheckin() error {
 		return err
 	}
 
-	// err = ExpireCommands()
-	// if err != nil {
-	// 	return err
-	// }
+	err = ExpireCommands()
+	if err != nil {
+		return errors.Wrap(err, "processScheduledCheckin::Expirecommands")
+	}
 
 	var certificates []types.Certificate
 
