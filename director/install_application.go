@@ -278,3 +278,14 @@ func GetSharedApplicationss(w http.ResponseWriter, r *http.Request) {
 		ErrorLogger(LogHolder{Message: err.Error()})
 	}
 }
+
+
+func DeleteSharedInstallApplication(w http.ResponseWriter, r *http.Request) {
+	var sharedInstallApplications []types.SharedInstallApplication
+
+	err := db.DB.Find(&sharedInstallApplications).Where("manifest_url = ?", ManifestURL.URL).Scan(&commands).Delete(&sharedInstallApplications).Error
+	if err != nil {
+		log.Errorf("Couldn't delete SharedInstallApplication: %v", err)
+	}
+	log.Infof("Deleted SharedInstallApplication %v", installApplication.ManifestURL)
+}
